@@ -24,7 +24,7 @@ const menus = [
   },
   {
     title: "Documents",
-    href: "/dashboard/documents",
+    href: "/documents",
     icon: FileText,
   },
   {
