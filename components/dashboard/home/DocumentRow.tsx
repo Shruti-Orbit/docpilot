@@ -9,7 +9,7 @@ import {
 interface DocumentRowProps {
   name: string;
   workspace: string;
-  status: "Indexed" | "Processing" | "Failed";
+  status: string;
   uploaded: string;
 }
 
@@ -19,10 +19,10 @@ export default function DocumentRow({
   status,
   uploaded,
 }: DocumentRowProps) {
-  const statusStyles = {
-    Indexed: "bg-green-100 text-green-700",
-    Processing: "bg-yellow-100 text-yellow-700",
-    Failed: "bg-red-100 text-red-700",
+  const statusStyles: Record<string, string> = {
+    completed: "bg-green-100 text-green-700",
+    processing: "bg-yellow-100 text-yellow-700",
+    failed: "bg-red-100 text-red-700",
   };
 
   return (
@@ -56,7 +56,7 @@ export default function DocumentRow({
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[status]}`}
         >
-          {status}
+          {status.charAt(0).toUpperCase() + status.slice(1)}
         </span>
       </td>
 
