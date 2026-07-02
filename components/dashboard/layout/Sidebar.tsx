@@ -32,11 +32,7 @@ const menus = [
     href: "/dashboard/upload",
     icon: Upload,
   },
-  {
-    title: "AI Chat",
-    href: "/dashboard/ai-chat",
-    icon: Bot,
-  },
+
   {
     title: "Settings",
     href: "/dashboard/settings",
