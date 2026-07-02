@@ -1,11 +1,15 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
-import { Mail, Lock } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+
+import { login } from "@/services/auth.service";
 
 import AuthCard from "@/components/ui/AuthCard";
 import Divider from "@/components/ui/Divider";
@@ -15,13 +19,14 @@ import PasswordField from "@/components/ui/PasswordField";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -32,19 +37,27 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: LoginData) => {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    console.log(data);
+      const response = await login(data);
 
-    setTimeout(() => {
-      toast.success("Welcome Back 🚀");
+      localStorage.setItem("token", response.token);
+
+      toast.success(response.message || "Login Successful 🚀");
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message || "Login Failed"
+      );
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
     <section className="relative flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-violet-50 p-10">
-
       <AuthCard
         title="Welcome Back"
         subtitle="Login to continue to DocPilot AI."
@@ -79,8 +92,9 @@ export default function LoginForm() {
           </div>
 
           <button
+            type="submit"
             disabled={loading}
-            className="h-14 w-full rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white transition hover:scale-[1.02]"
+            className="h-14 w-full rounded-2xl bg-gradient-to-r from-violet-600 to-purple-600 font-semibold text-white transition hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {loading ? "Signing In..." : "Sign In"}
           </button>
