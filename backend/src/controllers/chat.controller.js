@@ -4,7 +4,7 @@ const { askGemini } = require("../services/gemini.service");
 
 const chatWithDocument = async (req, res) => {
   try {
-    const { documentId, question } = req.body;
+    const { documentId, workspaceId, question } = req.body;
 
     if (!documentId || !question) {
       return res.status(400).json({
@@ -13,12 +13,29 @@ const chatWithDocument = async (req, res) => {
       });
     }
 
-    const document = await Document.findById(documentId);
+    const document = await Document.findOne({
+      _id: documentId,
+      user: req.user.id,
+    });
+
+
 
     if (!document) {
       return res.status(404).json({
         success: false,
         message: "Document not found",
+      });
+    }
+
+    const { workspaceId } = req.body;
+
+    if (
+      workspaceId &&
+      document.workspace.toString() !== workspaceId
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "This document doesn't belong to the selected workspace.",
       });
     }
 

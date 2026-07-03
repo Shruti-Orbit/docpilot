@@ -55,8 +55,17 @@ export default function QuickActions() {
         return;
       }
 
+      const workspaceId = localStorage.getItem("workspaceId");
+
+      if (!workspaceId) {
+        toast.error("Please open/select a workspace first.");
+        return;
+      }
+
       const formData = new FormData();
+
       formData.append("file", file);
+      formData.append("workspaceId", workspaceId);
 
       setUploading(true);
 

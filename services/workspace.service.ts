@@ -1,13 +1,12 @@
 import api from "@/lib/axios";
 
-export const askAI = async (data: {
-  documentId: string;
-  workspaceId: string;
-  question: string;
+export const createWorkspace = async (data: {
+  name: string;
+  description: string;
 }) => {
   const token = localStorage.getItem("token");
 
-  const response = await api.post("/chat", data, {
+  const response = await api.post("/workspaces", data, {
     headers: {
       Authorization: token,
     },
@@ -16,10 +15,10 @@ export const askAI = async (data: {
   return response.data;
 };
 
-export const getChats = async (documentId: string) => {
+export const getWorkspaces = async () => {
   const token = localStorage.getItem("token");
 
-  const response = await api.get(`/chat/${documentId}`, {
+  const response = await api.get("/workspaces", {
     headers: {
       Authorization: token,
     },

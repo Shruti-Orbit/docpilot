@@ -17,14 +17,28 @@ const uploadDocument = async (req, res) => {
 
         const userId = req.user.id;
 
+        const { workspaceId } = req.body;
+
+        if (!workspaceId) {
+            return res.status(400).json({
+                success: false,
+                message: "Workspace is required",
+            });
+        }
+
+
         // 1. Save document
         const document = await Document.create({
             user: userId,
+
+            workspace: workspaceId,
+
             fileName: req.file.filename,
             originalName: req.file.originalname,
             filePath: req.file.path,
             fileSize: req.file.size,
             mimeType: req.file.mimetype,
+
             status: "processing",
         });
 
@@ -81,9 +95,25 @@ const uploadDocument = async (req, res) => {
 
 const getDocuments = async (req, res) => {
     try {
+        const { workspaceId } = req.query;
+
+        if (!workspaceId) {
+            return res.status(400).json({
+                success: false,
+                message: "Workspace is required",
+            });
+        }
+
         const documents = await Document.find({
             user: req.user.id,
+            workspace: workspaceId,
         }).sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: documents.length,
+            data: documents,
+        });
 
         res.status(200).json({
             success: true,
