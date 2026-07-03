@@ -1,4 +1,4 @@
-# 🚀 DocPilot AI
+#  DocPilot AI
 ### Multi-Workspace Document Assistant (RAG & Tool Calling)
 
 DocPilot AI is an AI-powered document assistant that allows users to upload PDF documents, chat with them using Retrieval-Augmented Generation (RAG), manage multiple workspaces, and perform AI-powered tool actions such as saving tasks and notes.
@@ -7,9 +7,9 @@ The application ensures strict workspace isolation while storing document embedd
 
 ---
 
-# 📌 Features
+#  Features
 
-## 🔐 Authentication
+##  Authentication
 
 - User Registration
 - User Login
@@ -18,7 +18,7 @@ The application ensures strict workspace isolation while storing document embedd
 
 ---
 
-## 🗂 Workspace Management
+##  Workspace Management
 
 - Create Multiple Workspaces
 - Switch Between Workspaces
@@ -27,7 +27,7 @@ The application ensures strict workspace isolation while storing document embedd
 
 ---
 
-## 📄 Document Management
+##  Document Management
 
 - Upload PDF Documents
 - Automatic Text Extraction
@@ -37,7 +37,7 @@ The application ensures strict workspace isolation while storing document embedd
 
 ---
 
-## 🤖 AI Command Center
+##  AI Command Center
 
 - Ask Questions About Uploaded PDFs
 - Suggested AI Prompts
@@ -47,7 +47,7 @@ The application ensures strict workspace isolation while storing document embedd
 
 ---
 
-# 🧠 Retrieval-Augmented Generation (RAG)
+#  Retrieval-Augmented Generation (RAG)
 
 The application uses Retrieval-Augmented Generation instead of sending the complete document to the LLM.
 
@@ -83,7 +83,7 @@ Only the retrieved chunks are sent to Gemini, making responses faster, cheaper a
 
 ---
 
-# 🧩 Shared Vector Store
+# Shared Vector Store
 
 Instead of creating a separate vector database for every workspace, all document chunks are stored in a single MongoDB collection.
 
@@ -101,7 +101,7 @@ Workspace filtering ensures complete isolation.
 
 ---
 
-# 🔒 Workspace Isolation
+#  Workspace Isolation
 
 Every query is filtered using:
 
@@ -112,13 +112,13 @@ This guarantees that documents from one workspace cannot be retrieved from anoth
 
 ---
 
-# 🛠 Tool Calling
+#  Tool Calling
 
 The assistant supports real Gemini Function Calling.
 
 Implemented tools:
 
-### ✅ Save Task
+###  Save Task
 
 Stores tasks in MongoDB.
 
@@ -132,7 +132,7 @@ Fields:
 
 ---
 
-### ✅ Save Note
+###  Save Note
 
 Stores notes in MongoDB.
 
@@ -151,7 +151,7 @@ Every execution is logged.
 
 ---
 
-# 📜 Tool Call Log
+# Tool Call Log
 
 Every successful or failed tool execution is stored.
 
@@ -168,7 +168,7 @@ Dashboard displays the latest tool activity.
 
 ---
 
-# 💬 Chat History
+#  Chat History
 
 Every AI conversation is stored per workspace.
 
@@ -184,7 +184,7 @@ Switching workspaces automatically loads the corresponding history.
 
 ---
 
-# 🏗 Tech Stack
+#  Tech Stack
 
 ## Frontend
 
@@ -221,7 +221,7 @@ Switching workspaces automatically loads the corresponding history.
 
 ---
 
-# 📂 Project Structure
+#  Project Structure
 
 ```
 DocPilot-AI
@@ -278,7 +278,7 @@ npm run dev
 
 ---
 
-# 🔑 Environment Variables
+#  Environment Variables
 
 Backend
 
@@ -296,7 +296,7 @@ COHERE_API_KEY=
 
 ---
 
-# 🚀 Deployment
+#  Deployment
 
 ## Frontend
 
@@ -316,7 +316,7 @@ MongoDB Atlas
 
 ---
 
-# 🧪 Testing
+#  Testing
 
 Verify the following features:
 
@@ -336,7 +336,7 @@ Verify the following features:
 
 ---
 
-# 📈 Future Improvements
+#  Future Improvements
 
 - Streaming Responses
 - OCR Support
@@ -348,7 +348,7 @@ Verify the following features:
 
 ---
 
-# 🤝 AI Assistance
+#  AI Assistance
 
 AI tools were used only as development assistants for brainstorming, debugging, documentation, and implementation suggestions.
 
