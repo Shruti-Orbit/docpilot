@@ -1,18 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import DocumentRow from "./DocumentRow";
 import { getDocuments } from "@/services/document.service";
 
+interface RecentDocument {
+  _id: string;
+  originalName: string;
+  status: string;
+  createdAt: string;
+  fileName?: string;
+  filePath?: string;
+}
+
 export default function RecentDocuments() {
-  const [documents, setDocuments] = useState<any[]>([]);
+  const router = useRouter();
+  const [documents, setDocuments] = useState<RecentDocument[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadDocuments();
-  }, []);
-
-  const loadDocuments = async () => {
+  const loadDocuments = useCallback(async () => {
     try {
       const workspaceId = localStorage.getItem("workspaceId");
 
@@ -29,7 +36,11 @@ export default function RecentDocuments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void Promise.resolve().then(loadDocuments);
+  }, [loadDocuments]);
 
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -46,7 +57,10 @@ export default function RecentDocuments() {
           </p>
         </div>
 
-        <button className="rounded-xl border border-slate-200 px-5 py-3 font-medium hover:bg-slate-50">
+        <button
+          onClick={() => router.push("/documents")}
+          className="rounded-xl border border-slate-200 px-5 py-3 font-medium hover:bg-slate-50"
+        >
           View All
         </button>
 
@@ -94,6 +108,7 @@ export default function RecentDocuments() {
 
                 <DocumentRow
                   key={doc._id}
+                  id={doc._id}
                   name={doc.originalName}
                   workspace={
                     localStorage.getItem("workspaceName") ||
@@ -103,6 +118,8 @@ export default function RecentDocuments() {
                   uploaded={new Date(
                     doc.createdAt
                   ).toLocaleDateString()}
+                  fileName={doc.fileName}
+                  filePath={doc.filePath}
                 />
 
               ))}

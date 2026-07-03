@@ -1,3 +1,5 @@
+"use client";
+
 import {
   FileText,
   Eye,
@@ -5,24 +7,68 @@ import {
   MessageSquare,
   MoreHorizontal,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface DocumentRowProps {
+  id: string;
   name: string;
   workspace: string;
   status: string;
   uploaded: string;
+  fileName?: string;
+  filePath?: string;
 }
 
 export default function DocumentRow({
+  id,
   name,
   workspace,
   status,
   uploaded,
+  fileName,
+  filePath,
 }: DocumentRowProps) {
+  const router = useRouter();
+
   const statusStyles: Record<string, string> = {
     completed: "bg-green-100 text-green-700",
     processing: "bg-yellow-100 text-yellow-700",
     failed: "bg-red-100 text-red-700",
+  };
+
+  const fileUrl = fileName
+    ? `http://localhost:5000/uploads/${fileName}`
+    : filePath
+      ? `http://localhost:5000/${filePath.replace(/\\/g, "/")}`
+      : "";
+
+  const handleView = () => {
+    if (!fileUrl) {
+      toast.error("Document file not available");
+      return;
+    }
+
+    window.open(fileUrl, "_blank");
+  };
+
+  const handleChat = () => {
+    localStorage.setItem("documentId", id);
+    router.push("/dashboard/upload");
+  };
+
+  const handleDownload = () => {
+    if (!fileUrl) {
+      toast.error("Document file not available");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   };
 
   return (
@@ -68,19 +114,31 @@ export default function DocumentRow({
 
         <div className="flex items-center gap-2">
 
-          <button className="rounded-lg p-2 hover:bg-slate-100">
+          <button
+            onClick={handleView}
+            className="rounded-lg p-2 hover:bg-slate-100"
+          >
             <Eye size={18} />
           </button>
 
-          <button className="rounded-lg p-2 hover:bg-slate-100">
+          <button
+            onClick={handleChat}
+            className="rounded-lg p-2 hover:bg-slate-100"
+          >
             <MessageSquare size={18} />
           </button>
 
-          <button className="rounded-lg p-2 hover:bg-slate-100">
+          <button
+            onClick={handleDownload}
+            className="rounded-lg p-2 hover:bg-slate-100"
+          >
             <Download size={18} />
           </button>
 
-          <button className="rounded-lg p-2 hover:bg-slate-100">
+          <button
+            onClick={() => router.push("/documents")}
+            className="rounded-lg p-2 hover:bg-slate-100"
+          >
             <MoreHorizontal size={18} />
           </button>
 

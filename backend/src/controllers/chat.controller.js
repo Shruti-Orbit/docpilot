@@ -13,10 +13,11 @@ const chatWithDocument = async (req, res) => {
       });
     }
 
-    const document = await Document.findOne({
-      _id: documentId,
-      user: req.user.id,
-    });
+   const document = await Document.findOne({
+  _id: documentId,
+  user: req.user.id,
+  workspace: workspaceId,
+});
 
 
 
@@ -27,7 +28,7 @@ const chatWithDocument = async (req, res) => {
       });
     }
 
-    const { workspaceId } = req.body;
+
 
     if (
       workspaceId &&

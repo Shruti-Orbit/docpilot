@@ -6,7 +6,6 @@ import Hero from "./Hero";
 import AICommandCenter from "./AICommandCenter";
 import QuickActions from "./QuickActions";
 import ContinueWorking from "./ContinueWorking";
-import AIStatus from "./AIStatus";
 import WorkspaceGrid from "./WorkspaceGrid";
 import RecentDocuments from "./RecentDocuments";
 
@@ -62,7 +61,7 @@ export default function Home() {
       {/* Continue Working + AI Status */}
       <div className="grid gap-6 lg:grid-cols-2">
         <ContinueWorking data={dashboard} />
-        <AIStatus />
+        {/* <AIStatus /> */}
       </div>
 
       {/* Workspace */}

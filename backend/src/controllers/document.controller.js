@@ -2,9 +2,7 @@ const Document = require("../models/Document");
 const { extractTextFromPDF } = require("../services/pdf.service");
 const { summarizeDocument } = require("../services/gemini.service");
 
-// ================================
-// Upload Document
-// ================================
+
 
 const uploadDocument = async (req, res) => {
     try {
@@ -89,9 +87,7 @@ const uploadDocument = async (req, res) => {
     }
 };
 
-// ================================
-// Get User Documents
-// ================================
+
 
 const getDocuments = async (req, res) => {
     try {
@@ -115,11 +111,7 @@ const getDocuments = async (req, res) => {
             data: documents,
         });
 
-        res.status(200).json({
-            success: true,
-            count: documents.length,
-            data: documents,
-        });
+
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -128,9 +120,7 @@ const getDocuments = async (req, res) => {
     }
 };
 
-// ================================
-// Delete Document
-// ================================
+
 
 const deleteDocument = async (req, res) => {
     try {

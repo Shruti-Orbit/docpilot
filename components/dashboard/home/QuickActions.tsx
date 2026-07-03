@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Upload,
   FolderPlus,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadDocument } from "@/services/document.service";
+import CreateWorkspaceModal from "../workspace/CreateWorkspaceModal";
 
 const actions = [
   {
@@ -38,9 +40,18 @@ const actions = [
   },
 ];
 
-export default function QuickActions() {
+interface QuickActionsProps {
+  refreshDashboard?: () => void;
+}
+
+export default function QuickActions({
+  refreshDashboard,
+}: QuickActionsProps) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [openWorkspaceModal, setOpenWorkspaceModal] =
+    useState(false);
 
   const handleUpload = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -74,9 +85,24 @@ export default function QuickActions() {
       toast.success("Document uploaded successfully");
 
       window.location.reload();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error
+          ? (
+              error as {
+                response?: {
+                  data?: {
+                    message?: string;
+                  };
+                };
+              }
+            ).response?.data?.message
+          : undefined;
+
       toast.error(
-        error?.response?.data?.message || "Upload Failed"
+        message || "Upload Failed"
       );
     } finally {
       setUploading(false);
@@ -114,6 +140,18 @@ export default function QuickActions() {
                 if (action.title === "Upload Document") {
                   inputRef.current?.click();
                 }
+
+                if (action.title === "Create Workspace") {
+                  setOpenWorkspaceModal(true);
+                }
+
+                if (action.title === "Start AI Chat") {
+                  router.push("/dashboard/upload");
+                }
+
+                if (action.title === "Browse Documents") {
+                  router.push("/documents");
+                }
               }}
               className="group rounded-3xl border border-slate-200 bg-white p-6 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-violet-300 hover:shadow-xl"
             >
@@ -142,6 +180,14 @@ export default function QuickActions() {
           );
         })}
       </div>
+
+      <CreateWorkspaceModal
+        open={openWorkspaceModal}
+        onClose={() => setOpenWorkspaceModal(false)}
+        onSuccess={() => {
+          refreshDashboard?.();
+        }}
+      />
     </section>
   );
 }

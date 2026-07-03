@@ -24,7 +24,12 @@ const suggestions = [
 ];
 
 interface Props {
-  data: any;
+  data: {
+    recentDocuments?: {
+      _id: string;
+      originalName: string;
+    }[];
+  } | null;
 }
 
 interface ChatMessage {
@@ -98,6 +103,95 @@ export default function AICommandCenter({
       console.log(error);
 
       toast.error("Unable to get AI response");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleTool = async (tool: string) => {
+    if (tool === "Compare PDFs") {
+      toast.info(
+        "PDF comparison will be available in a future update."
+      );
+      return;
+    }
+
+    if (!latestDocument) {
+      toast.error("Upload a document first.");
+      return;
+    }
+
+    if (!workspaceId) {
+      toast.error("Please select a workspace.");
+      return;
+    }
+
+    let prompt = "";
+
+    switch (tool) {
+      case "Summarize Document":
+        prompt = "Summarize this document in bullet points.";
+        break;
+
+      case "Extract Key Points":
+        prompt = "Extract all important key points from this document.";
+        break;
+
+      case "Find Important Dates":
+        prompt =
+          "Find all important dates mentioned in this document.";
+        break;
+
+      case "Generate FAQs":
+        prompt =
+          "Generate 10 frequently asked questions from this document.";
+        break;
+
+      default:
+        return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await askAI({
+        documentId: latestDocument._id,
+        workspaceId,
+        question: prompt,
+      });
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "user",
+          message: tool,
+        },
+        {
+          type: "ai",
+          message: res.answer,
+        },
+      ]);
+    } catch (error: unknown) {
+      const message =
+        error &&
+        typeof error === "object" &&
+        "response" in error
+          ? (
+              error as {
+                response?: {
+                  data?: {
+                    message?: string;
+                  };
+                };
+              }
+            ).response?.data?.message
+          : undefined;
+
+      toast.error(
+        message ||
+        "Unable to process request."
+      );
     } finally {
       setLoading(false);
     }
@@ -229,7 +323,7 @@ export default function AICommandCenter({
           <SuggestionChip
             key={item}
             title={item}
-            onClick={() => setQuestion(item)}
+            onClick={() => handleTool(item)}
           />
 
         ))}
@@ -246,19 +340,17 @@ export default function AICommandCenter({
 
             <div
               key={index}
-              className={`flex ${
-                item.type === "user"
-                  ? "justify-end"
-                  : "justify-start"
-              }`}
+              className={`flex ${item.type === "user"
+                ? "justify-end"
+                : "justify-start"
+                }`}
             >
 
               <div
-                className={`max-w-[80%] rounded-2xl p-5 ${
-                  item.type === "user"
-                    ? "bg-violet-600 text-white"
-                    : "bg-white border"
-                }`}
+                className={`max-w-[80%] rounded-2xl p-5 ${item.type === "user"
+                  ? "bg-violet-600 text-white"
+                  : "bg-white border"
+                  }`}
               >
 
                 <p className="mb-2 text-xs font-bold uppercase opacity-70">

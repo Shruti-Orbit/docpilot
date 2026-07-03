@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   Clock3,
@@ -8,12 +9,20 @@ import {
 } from "lucide-react";
 
 interface ContinueWorkingProps {
-  data: any;
+  data: {
+    recentDocuments?: {
+      status: string;
+      originalName: string;
+      createdAt: string;
+      fileSize: number;
+    }[];
+  } | null;
 }
 
 export default function ContinueWorking({
   data,
 }: ContinueWorkingProps) {
+  const router = useRouter();
   const document = data?.recentDocuments?.[0];
 
   // No document uploaded
@@ -138,7 +147,10 @@ export default function ContinueWorking({
 
       </div>
 
-      <button className="mt-8 flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700">
+      <button
+        onClick={() => router.push("/dashboard/upload")}
+        className="mt-8 flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-semibold text-white transition hover:bg-violet-700"
+      >
 
         Continue Reading
 

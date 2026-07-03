@@ -1,6 +1,25 @@
 import { Search } from "lucide-react";
 
-export default function DocumentFilters() {
+interface Workspace {
+  _id: string;
+  name: string;
+}
+
+interface DocumentFiltersProps {
+  search: string;
+  selectedWorkspaceId: string;
+  workspaces: Workspace[];
+  onSearchChange: (value: string) => void;
+  onWorkspaceChange: (value: string) => void;
+}
+
+export default function DocumentFilters({
+  search,
+  selectedWorkspaceId,
+  workspaces,
+  onSearchChange,
+  onWorkspaceChange,
+}: DocumentFiltersProps) {
   return (
     <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
 
@@ -14,20 +33,29 @@ export default function DocumentFilters() {
         <input
           type="text"
           placeholder="Search documents..."
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
           className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 outline-none focus:border-violet-500"
         />
 
       </div>
 
-      <select className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none">
+      <select
+        value={selectedWorkspaceId}
+        onChange={(event) => onWorkspaceChange(event.target.value)}
+        className="rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none"
+      >
 
-        <option>All Workspaces</option>
+        <option value="all">All Workspaces</option>
 
-        <option>HR</option>
-
-        <option>Finance</option>
-
-        <option>Legal</option>
+        {workspaces.map((workspace) => (
+          <option
+            key={workspace._id}
+            value={workspace._id}
+          >
+            {workspace.name}
+          </option>
+        ))}
 
       </select>
 

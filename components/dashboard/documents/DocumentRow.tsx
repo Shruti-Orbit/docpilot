@@ -7,18 +7,54 @@ import {
 } from "lucide-react";
 
 interface DocumentRowProps {
+  id: string;
   name: string;
   workspace: string;
   status: string;
   uploaded: string;
+  fileSize: number;
+  onDelete: (id: string) => void;
 }
 
+const formatDate = (date: string) => {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(date));
+};
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const formatStatus = (status: string) => {
+  if (status === "completed") {
+    return "Indexed";
+  }
+
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
 export default function DocumentRow({
+  id,
   name,
   workspace,
   status,
   uploaded,
+  fileSize,
+  onDelete,
 }: DocumentRowProps) {
+  const statusLabel = formatStatus(status);
+
   return (
     <tr className="border-b border-slate-100 hover:bg-slate-50">
 
@@ -31,7 +67,9 @@ export default function DocumentRow({
 
           <div>
             <h3 className="font-semibold">{name}</h3>
-            <p className="text-sm text-slate-500">PDF Document</p>
+            <p className="text-sm text-slate-500">
+              PDF Document - {formatFileSize(fileSize)}
+            </p>
           </div>
 
         </div>
@@ -43,16 +81,16 @@ export default function DocumentRow({
         <span
           className={`rounded-full px-3 py-1 text-xs font-semibold
           ${
-            status === "Indexed"
+            statusLabel === "Indexed"
               ? "bg-green-100 text-green-700"
               : "bg-yellow-100 text-yellow-700"
           }`}
         >
-          {status}
+          {statusLabel}
         </span>
       </td>
 
-      <td>{uploaded}</td>
+      <td>{formatDate(uploaded)}</td>
 
       <td>
 
@@ -70,7 +108,11 @@ export default function DocumentRow({
             <Download size={18} />
           </button>
 
-          <button className="text-red-500">
+          <button
+            type="button"
+            className="text-red-500"
+            onClick={() => onDelete(id)}
+          >
             <Trash2 size={18} />
           </button>
 

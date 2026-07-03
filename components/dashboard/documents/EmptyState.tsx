@@ -1,6 +1,27 @@
+import { ChangeEvent, useRef } from "react";
 import { FileText } from "lucide-react";
 
-export default function EmptyState() {
+interface EmptyStateProps {
+  onUpload: (file: File) => void;
+  isUploading: boolean;
+}
+
+export default function EmptyState({
+  onUpload,
+  isUploading,
+}: EmptyStateProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      onUpload(file);
+    }
+
+    event.target.value = "";
+  };
+
   return (
     <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-16 text-center">
 
@@ -17,7 +38,20 @@ export default function EmptyState() {
         Upload your first PDF to start chatting with AI.
       </p>
 
-      <button className="mt-6 rounded-xl bg-violet-600 px-6 py-3 text-white">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      <button
+        type="button"
+        disabled={isUploading}
+        onClick={() => fileInputRef.current?.click()}
+        className="mt-6 rounded-xl bg-violet-600 px-6 py-3 text-white"
+      >
         Upload PDF
       </button>
 

@@ -4,12 +4,22 @@ const Document = require("../models/Document");
 const getDashboard = async (req, res) => {
   try {
     const userId = req.user.id;
+    const { workspaceId } = req.query;
 
     // User
     const user = await User.findById(userId).select("-password");
 
+    // Build filter
+    const filter = {
+      user: userId,
+    };
+
+    if (workspaceId) {
+      filter.workspace = workspaceId;
+    }
+
     // Documents
-    const documents = await Document.find({ user: userId }).sort({
+    const documents = await Document.find(filter).sort({
       createdAt: -1,
     });
 
@@ -19,13 +29,13 @@ const getDashboard = async (req, res) => {
       0
     );
 
-    // Convert Bytes → MB
     const storageInMB = (totalStorage / (1024 * 1024)).toFixed(2);
 
     res.status(200).json({
       success: true,
       data: {
         user,
+
         stats: {
           totalDocuments: documents.length,
           totalStorage: `${storageInMB} MB`,
@@ -34,6 +44,7 @@ const getDashboard = async (req, res) => {
               ? documents[0].originalName
               : "No Documents",
         },
+
         recentDocuments: documents.slice(0, 5),
       },
     });
