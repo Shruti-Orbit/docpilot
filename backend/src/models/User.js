@@ -21,13 +21,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre("save", async function () {
-  if (!this.isModified("password") || this.password.startsWith("$2")) {
-    return;
-  }
-
-  const bcrypt = require("bcryptjs");
-  this.password = await bcrypt.hash(this.password, 10);
-});
-
 module.exports = mongoose.model("User", userSchema);

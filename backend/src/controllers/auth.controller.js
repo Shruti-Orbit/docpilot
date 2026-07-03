@@ -17,16 +17,11 @@ const signup = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        console.log("Incoming password:", password);
-        console.log("Hashed password:", hashedPassword);
-
         const user = await User.create({
             name,
             email,
             password: hashedPassword,
         });
-
-        console.log("Saved user:", user);
 
         res.status(201).json({
             success: true,

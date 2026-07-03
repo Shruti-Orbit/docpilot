@@ -120,7 +120,7 @@ export default function QuickActions() {
 
               <p className="mt-3 text-sm leading-6 text-slate-500">
                 {uploading &&
-                action.title === "Upload Document"
+                  action.title === "Upload Document"
                   ? "Uploading..."
                   : action.description}
               </p>

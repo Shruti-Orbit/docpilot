@@ -1,4 +1,6 @@
 const Document = require("../models/Document");
+const { extractTextFromPDF } = require("../services/pdf.service");
+const { summarizeDocument } = require("../services/gemini.service");
 
 // ================================
 // Upload Document
@@ -6,7 +8,6 @@ const Document = require("../models/Document");
 
 const uploadDocument = async (req, res) => {
     try {
-        // Check File
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -14,10 +15,9 @@ const uploadDocument = async (req, res) => {
             });
         }
 
-        // Logged In User
         const userId = req.user.id;
 
-        // Save Document
+        // 1. Save document
         const document = await Document.create({
             user: userId,
             fileName: req.file.filename,
@@ -25,14 +25,46 @@ const uploadDocument = async (req, res) => {
             filePath: req.file.path,
             fileSize: req.file.size,
             mimeType: req.file.mimetype,
-            status: "completed",
+            status: "processing",
         });
+
+        try {
+            console.log("📄 Extracting PDF...");
+
+            const text = await extractTextFromPDF(document.filePath);
+
+            if (text && text.trim().length > 0) {
+                console.log("🤖 Generating Summary...");
+
+                const summary = await summarizeDocument(text);
+
+                document.summary = summary;
+                document.isSummarized = true;
+                document.status = "completed";
+
+                await document.save();
+
+                console.log("✅ Summary Generated");
+            } else {
+                document.status = "failed";
+                await document.save();
+
+                console.log("❌ No text found in PDF");
+            }
+
+        } catch (err) {
+            console.log("Summary Error:", err.message);
+
+            document.status = "failed";
+            await document.save();
+        }
 
         res.status(201).json({
             success: true,
             message: "Document Uploaded Successfully",
             data: document,
         });
+
     } catch (error) {
         console.error(error);
 

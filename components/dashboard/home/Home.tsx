@@ -16,18 +16,26 @@ export default function Home() {
   const [dashboard, setDashboard] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const response = await getDashboard();
-        setDashboard(response.data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // ============================
+  // Fetch Dashboard
+  // ============================
 
+  const fetchDashboard = async () => {
+    try {
+      const response = await getDashboard();
+      setDashboard(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ============================
+  // Initial Load
+  // ============================
+
+  useEffect(() => {
     fetchDashboard();
   }, []);
 
@@ -41,20 +49,28 @@ export default function Home() {
 
   return (
     <div className="space-y-8">
+
+      {/* Hero */}
       <Hero data={dashboard} />
 
-      <AICommandCenter />
+      {/* AI Command Center */}
+      <AICommandCenter data={dashboard} />
 
-      <QuickActions />
+      {/* Quick Actions */}
+      <QuickActions refreshDashboard={fetchDashboard} />
 
+      {/* Continue Working + AI Status */}
       <div className="grid gap-6 lg:grid-cols-2">
         <ContinueWorking data={dashboard} />
         <AIStatus />
       </div>
 
+      {/* Workspace */}
       <WorkspaceGrid />
 
+      {/* Recent Documents */}
       <RecentDocuments />
+
     </div>
   );
 }

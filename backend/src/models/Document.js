@@ -38,6 +38,15 @@ const documentSchema = new mongoose.Schema(
       enum: ["processing", "completed", "failed"],
       default: "processing",
     },
+    summary: {
+      type: String,
+      default: "",
+    },
+
+    isSummarized: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
