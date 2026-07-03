@@ -32,13 +32,13 @@ const askGemini = async (documentText, question) => {
     const prompt = `
 You are DocPilot AI.
 
-Answer ONLY from the uploaded document.
+Answer ONLY from the retrieved document context.
 
 If the answer is not present, reply:
 
-"I couldn't find that information in the uploaded document."
+"I couldn't find relevant information inside the selected workspace."
 
-Document:
+Retrieved context:
 
 ${documentText}
 

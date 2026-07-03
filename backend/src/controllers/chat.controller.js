@@ -1,6 +1,39 @@
 const Document = require("../models/Document");
-const { extractTextFromPDF } = require("../services/pdf.service");
+const Chat = require("../models/Chat");
 const { askGemini } = require("../services/gemini.service");
+const {
+  retrieveRelevantChunks,
+} = require("../services/rag.service");
+const {
+  runGeminiToolCalling,
+} = require("../services/tool.service");
+
+const NO_RELEVANT_INFORMATION =
+  "I couldn't find relevant information inside the selected workspace.";
+
+const formatSources = (chunks) => {
+  const seen = new Set();
+
+  return chunks
+    .filter((chunk) => {
+      const key = `${chunk.filename}-${chunk.chunkIndex}`;
+
+      if (seen.has(key)) {
+        return false;
+      }
+
+      seen.add(key);
+      return true;
+    })
+    .map((chunk) => {
+      const page = chunk.pageNumber
+        ? `\nPage ${chunk.pageNumber}`
+        : "";
+
+      return `${chunk.filename}\nChunk ${chunk.chunkIndex}${page}`;
+    })
+    .join("\n\n");
+};
 
 const chatWithDocument = async (req, res) => {
   try {
@@ -40,30 +73,71 @@ const chatWithDocument = async (req, res) => {
       });
     }
 
-    console.log("========== DOCUMENT ==========");
-    console.log(document.filePath);
+    const relevantChunks = await retrieveRelevantChunks({
+      userId: req.user.id,
+      workspaceId,
+      question,
+    });
 
-    // Extract PDF Text
-    const documentText = await extractTextFromPDF(document.filePath);
+    if (relevantChunks.length === 0) {
+      await Chat.create({
+        user: req.user.id,
+        workspace: workspaceId,
+        document: documentId,
+        question,
+        answer: NO_RELEVANT_INFORMATION,
+      });
 
-    console.log("========== PDF TEXT ==========");
-    console.log("Length :", documentText.length);
-    console.log(documentText.substring(0, 500));
-    console.log("==============================");
-
-    if (!documentText || documentText.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No text found in this PDF.",
+      return res.status(200).json({
+        success: true,
+        answer: NO_RELEVANT_INFORMATION,
       });
     }
 
-    // Gemini
-    const answer = await askGemini(documentText, question);
+    const context = relevantChunks
+      .map(
+        (chunk) =>
+          `Source: ${chunk.filename}, Chunk ${chunk.chunkIndex}\n${chunk.chunk}`
+      )
+      .join("\n\n");
+
+    const toolCallResult = await runGeminiToolCalling({
+      context,
+      question,
+      userId: req.user.id,
+      workspaceId,
+    });
+
+    if (toolCallResult.handled) {
+      await Chat.create({
+        user: req.user.id,
+        workspace: workspaceId,
+        document: documentId,
+        question,
+        answer: toolCallResult.answer,
+      });
+
+      return res.status(200).json({
+        success: true,
+        answer: toolCallResult.answer,
+      });
+    }
+
+    const answer = await askGemini(context, question);
+    const sources = formatSources(relevantChunks);
+    const finalAnswer = `${answer}\n\nSource:\n${sources}`;
+
+    await Chat.create({
+      user: req.user.id,
+      workspace: workspaceId,
+      document: documentId,
+      question,
+      answer: finalAnswer,
+    });
 
     return res.status(200).json({
       success: true,
-      answer,
+      answer: finalAnswer,
     });
 
   } catch (error) {
@@ -78,6 +152,28 @@ const chatWithDocument = async (req, res) => {
   }
 };
 
+const getChatHistory = async (req, res) => {
+  try {
+    const { workspaceId } = req.params;
+
+    const chats = await Chat.find({
+      user: req.user.id,
+      workspace: workspaceId,
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      data: chats,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   chatWithDocument,
+  getChatHistory,
 };

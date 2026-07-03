@@ -16,10 +16,10 @@ export const askAI = async (data: {
   return response.data;
 };
 
-export const getChats = async (documentId: string) => {
+export const getChatHistory = async (workspaceId: string) => {
   const token = localStorage.getItem("token");
 
-  const response = await api.get(`/chat/${documentId}`, {
+  const response = await api.get(`/chat/history/${workspaceId}`, {
     headers: {
       Authorization: token,
     },

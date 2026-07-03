@@ -1,6 +1,8 @@
 const Document = require("../models/Document");
+const VectorChunk = require("../models/VectorChunk");
 const { extractTextFromPDF } = require("../services/pdf.service");
 const { summarizeDocument } = require("../services/gemini.service");
+const { indexDocumentChunks } = require("../services/rag.service");
 
 
 
@@ -46,6 +48,11 @@ const uploadDocument = async (req, res) => {
             const text = await extractTextFromPDF(document.filePath);
 
             if (text && text.trim().length > 0) {
+                await indexDocumentChunks({
+                    document,
+                    text,
+                });
+
                 console.log("🤖 Generating Summary...");
 
                 const summary = await summarizeDocument(text);
@@ -127,6 +134,9 @@ const deleteDocument = async (req, res) => {
         const { id } = req.params;
 
         await Document.findByIdAndDelete(id);
+        await VectorChunk.deleteMany({
+            documentId: id,
+        });
 
         res.status(200).json({
             success: true,

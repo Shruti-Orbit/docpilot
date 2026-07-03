@@ -6,6 +6,7 @@ const documentRoutes = require("./routes/document.routes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const chatRoutes = require("./routes/chat.routes");
 const workspaceRoutes = require("./routes/workspace.routes");
+const toolRoutes = require("./routes/tool.routes");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/workspaces", workspaceRoutes);
+app.use("/api/tools", toolRoutes);
 
 app.get("/", (req, res) => {
   res.json({

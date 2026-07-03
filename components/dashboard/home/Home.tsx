@@ -8,6 +8,7 @@ import QuickActions from "./QuickActions";
 import ContinueWorking from "./ContinueWorking";
 import WorkspaceGrid from "./WorkspaceGrid";
 import RecentDocuments from "./RecentDocuments";
+import RecentToolCalls from "./RecentToolCalls";
 
 import { getDashboard } from "@/services/dashboard.service";
 
@@ -69,6 +70,9 @@ export default function Home() {
 
       {/* Recent Documents */}
       <RecentDocuments />
+
+      {/* Recent Tool Calls */}
+      <RecentToolCalls />
 
     </div>
   );

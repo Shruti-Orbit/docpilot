@@ -14,6 +14,12 @@ const chatSchema = new mongoose.Schema(
             required: true,
         },
 
+        workspace: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Workspace",
+            required: true,
+        },
+
         question: {
             type: String,
             required: true,

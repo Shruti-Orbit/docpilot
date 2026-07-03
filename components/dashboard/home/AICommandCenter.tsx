@@ -13,7 +13,10 @@ import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 
 import SuggestionChip from "./SuggestionChip";
-import { askAI } from "@/services/chat.service";
+import {
+  askAI,
+  getChatHistory,
+} from "@/services/chat.service";
 
 const suggestions = [
   "Summarize Document",
@@ -37,6 +40,11 @@ interface ChatMessage {
   message: string;
 }
 
+interface HistoryItem {
+  question: string;
+  answer: string;
+}
+
 export default function AICommandCenter({
   data,
 }: Props) {
@@ -44,11 +52,11 @@ export default function AICommandCenter({
 
   const documentUploaded = !!latestDocument;
 
-  const workspaceId =
+  const [workspaceId, setWorkspaceId] = useState<string | null>(
     typeof window !== "undefined"
       ? localStorage.getItem("workspaceId")
-      : null;
-
+      : null
+  );
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<
@@ -63,6 +71,53 @@ export default function AICommandCenter({
       behavior: "smooth",
     });
   }, [messages]);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const nextWorkspaceId =
+        localStorage.getItem("workspaceId");
+
+      setWorkspaceId((currentWorkspaceId) =>
+        currentWorkspaceId === nextWorkspaceId
+          ? currentWorkspaceId
+          : nextWorkspaceId
+      );
+    }, 500);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!workspaceId) {
+        setMessages([]);
+        return;
+      }
+
+      try {
+        const res = await getChatHistory(workspaceId);
+        const history = (res.data || [])
+          .slice()
+          .reverse()
+          .flatMap((chat: HistoryItem) => [
+            {
+              type: "user" as const,
+              message: chat.question,
+            },
+            {
+              type: "ai" as const,
+              message: chat.answer,
+            },
+          ]);
+
+        setMessages(history);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    void Promise.resolve().then(loadHistory);
+  }, [workspaceId]);
 
   const handleAskAI = async () => {
     if (!question.trim()) return;
@@ -79,19 +134,24 @@ export default function AICommandCenter({
 
     try {
       setLoading(true);
-
-      const res = await askAI({
-        documentId: latestDocument._id,
-        workspaceId,
-        question,
-      });
+      const currentQuestion = question;
 
       setMessages((prev) => [
         ...prev,
         {
           type: "user",
-          message: question,
+          message: currentQuestion,
         },
+      ]);
+
+      const res = await askAI({
+        documentId: latestDocument._id,
+        workspaceId,
+        question: currentQuestion,
+      });
+
+      setMessages((prev) => [
+        ...prev,
         {
           type: "ai",
           message: res.answer,
@@ -155,6 +215,14 @@ export default function AICommandCenter({
     try {
       setLoading(true);
 
+      setMessages((prev) => [
+        ...prev,
+        {
+          type: "user",
+          message: tool,
+        },
+      ]);
+
       const res = await askAI({
         documentId: latestDocument._id,
         workspaceId,
@@ -163,10 +231,6 @@ export default function AICommandCenter({
 
       setMessages((prev) => [
         ...prev,
-        {
-          type: "user",
-          message: tool,
-        },
         {
           type: "ai",
           message: res.answer,
