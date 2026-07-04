@@ -20,6 +20,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^8.24.1",
     "multer": "^2.2.0",
+    "pdf-parse": "^2.4.5",
     "react-markdown": "^10.1.0",
     "uuid": "^14.0.1"
   },
