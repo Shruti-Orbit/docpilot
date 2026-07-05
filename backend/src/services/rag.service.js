@@ -115,6 +115,42 @@ const indexDocumentChunks = async ({
 // Retrieve Relevant Chunks
 // ------------------------
 
+const retrieveRelevantChunks = async ({
+  userId,
+  workspaceId,
+  question,
+}) => {
+  console.log("====== RAG DEBUG ======");
+  console.log("USER:", userId);
+  console.log("WORKSPACE:", workspaceId);
+  console.log("QUESTION:", question);
+
+  const questionEmbedding = await createEmbedding(
+    question,
+    "search_query"
+  );
+
+  const chunks = await VectorChunk.find({
+    user: userId,
+    workspaceId,
+  }).lean();
+
+  console.log("TOTAL CHUNKS:", chunks.length);
+
+  const ranked = chunks
+    .map((chunk) => ({
+      ...chunk,
+      score: cosineSimilarity(questionEmbedding, chunk.embedding),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, TOP_K);
+
+  console.log("TOP CHUNKS:", ranked.length);
+  console.log("======================");
+
+  return ranked;
+};
+
 const chunks = await VectorChunk.find({
   user: userId,
   workspaceId,
