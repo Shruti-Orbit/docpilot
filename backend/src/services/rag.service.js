@@ -115,6 +115,15 @@ const indexDocumentChunks = async ({
 // Retrieve Relevant Chunks
 // ------------------------
 
+const chunks = await VectorChunk.find({
+  user: userId,
+  workspaceId,
+}).lean();
+
+console.log("USER:", userId);
+console.log("WORKSPACE:", workspaceId);
+console.log("CHUNKS FOUND:", chunks.length);
+
 const retrieveRelevantChunks = async ({
   userId,
   workspaceId,
