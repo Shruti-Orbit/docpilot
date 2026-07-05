@@ -12,7 +12,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://docpilot-28c2-7yfswhfkg-shrutiai2105-9980s-projects.vercel.app",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
