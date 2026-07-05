@@ -8,7 +8,14 @@ import AICommandCenter from "@/components/dashboard/home/AICommandCenter";
 import { getDashboard } from "@/services/dashboard.service";
 
 export default function UploadPage() {
-  const [dashboard, setDashboard] = useState<unknown>(null);
+  type DashboardData = {
+    recentDocuments?: {
+      _id: string;
+      originalName: string;
+    }[];
+  };
+
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
