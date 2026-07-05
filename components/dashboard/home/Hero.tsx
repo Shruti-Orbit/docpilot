@@ -29,8 +29,7 @@ export default function Hero({ data }: HeroProps) {
   return (
     <section className="rounded-3xl bg-gradient-to-r from-violet-600 to-purple-600 p-8 text-white shadow-lg">
       <div className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-sm">
-        <Sparkles size={14} />
-        AI Workspace Ready
+        Your    Workspace Ready
       </div>
 
       <h1 className="mt-4 text-3xl font-bold">
