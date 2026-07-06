@@ -109,6 +109,8 @@ const indexDocumentChunks = async ({
   if (vectors.length) {
     await VectorChunk.insertMany(vectors);
   }
+
+  console.log("✅ Indexed Chunks:", vectors.length);
 };
 
 // ------------------------
@@ -120,9 +122,9 @@ const retrieveRelevantChunks = async ({
   workspaceId,
   question,
 }) => {
-  console.log("====== RAG DEBUG ======");
-  console.log("USER:", userId);
-  console.log("WORKSPACE:", workspaceId);
+  console.log("\n========== RAG DEBUG ==========");
+  console.log("USER ID:", userId);
+  console.log("WORKSPACE ID:", workspaceId);
   console.log("QUESTION:", question);
 
   const questionEmbedding = await createEmbedding(
@@ -135,45 +137,7 @@ const retrieveRelevantChunks = async ({
     workspaceId,
   }).lean();
 
-  console.log("TOTAL CHUNKS:", chunks.length);
-
-  const ranked = chunks
-    .map((chunk) => ({
-      ...chunk,
-      score: cosineSimilarity(questionEmbedding, chunk.embedding),
-    }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, TOP_K);
-
-  console.log("TOP CHUNKS:", ranked.length);
-  console.log("======================");
-
-  return ranked;
-};
-
-const chunks = await VectorChunk.find({
-  user: userId,
-  workspaceId,
-}).lean();
-
-console.log("USER:", userId);
-console.log("WORKSPACE:", workspaceId);
-console.log("CHUNKS FOUND:", chunks.length);
-
-const retrieveRelevantChunks = async ({
-  userId,
-  workspaceId,
-  question,
-}) => {
-  const questionEmbedding = await createEmbedding(
-    question,
-    "search_query"
-  );
-
-  const chunks = await VectorChunk.find({
-    user: userId,
-    workspaceId,
-  }).lean();
+  console.log("TOTAL CHUNKS FOUND:", chunks.length);
 
   const ranked = chunks
     .map((chunk) => ({
@@ -185,6 +149,15 @@ const retrieveRelevantChunks = async ({
     }))
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_K);
+
+  console.log("TOP CHUNKS:", ranked.length);
+
+  if (ranked.length > 0) {
+    console.log("TOP SCORE:", ranked[0].score);
+    console.log("FIRST FILE:", ranked[0].filename);
+  }
+
+  console.log("================================\n");
 
   return ranked;
 };
