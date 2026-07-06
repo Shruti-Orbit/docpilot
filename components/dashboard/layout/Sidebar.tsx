@@ -33,11 +33,7 @@ const menus = [
     icon: Upload,
   },
 
-  {
-    title: "Settings",
-    href: "/dashboard/settings",
-    icon: Settings,
-  },
+
 ];
 
 export default function Sidebar() {
