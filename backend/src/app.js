@@ -10,14 +10,26 @@ const toolRoutes = require("./routes/tool.routes");
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://docpilot-as7g.vercel.app",
+  "https://docpilot-as7g-7njuxcp8u-shrutiai2105-9980s-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "https://docpilot-28c2-7yfswhfkg-shrutiai2105-9980s-projects.vercel.app",
-    ],
+    origin(origin, callback) {
+      // Allow Postman/server-to-server requests
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
