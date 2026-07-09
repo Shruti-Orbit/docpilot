@@ -44,6 +44,8 @@ const uploadDocument = async (req, res) => {
 
         try {
             console.log("📄 Extracting PDF...");
+            console.log("FILE PATH:", document.filePath);
+            console.log("REQ FILE:", req.file);
 
             const text = await extractTextFromPDF(document.filePath);
 
